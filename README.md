@@ -8,6 +8,7 @@ Proyek ini merupakan submission akhir untuk kelas Analisis Data dengan Python ol
 
 1.  **Di kota mana saja konsentrasi pelanggan dan penjual tertinggi, dan bagaimana perbandingan keduanya?**
 2.  **Kategori produk apa yang menghasilkan pendapatan terbesar sekaligus memiliki skor ulasan (review score) rata-rata tertinggi?**
+3.  **Bagaimana segmentasi pelanggan berdasarkan perilaku transaksi (Recency, Frequency, Monetary) untuk mengidentifikasi kelompok pelanggan paling bernilai?**
 
 ## Struktur Proyek
 
@@ -60,6 +61,10 @@ streamlit run dashboard.py
 ```
 
 Setelah perintah dijalankan, dashboard akan terbuka secara otomatis di browser Anda.
+
+## Live Dashboard
+Dashboard interaktif untuk proyek ini dapat diakses melalui tautan berikut:
+[Dashboard Analisis E-Commerce](https://submissionpythondbs.streamlit.app/)
 
 ## Penulis
 

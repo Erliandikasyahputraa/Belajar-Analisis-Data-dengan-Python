@@ -77,6 +77,41 @@ def create_revenue_review_plot(df):
     ax2.grid(False)
     return fig
 
+# Fungsi untuk plot RFM
+def create_rfm_plot(df):
+    snapshot_date = df['order_purchase_timestamp'].max() + pd.DateOffset(days=1)
+    rfm_df = df.groupby('customer_unique_id').agg({
+        'order_purchase_timestamp': lambda x: (snapshot_date - x.max()).days,
+        'order_id': 'nunique',
+        'price': 'sum'
+    })
+    rfm_df.rename(columns={'order_purchase_timestamp': 'Recency',
+                           'order_id': 'Frequency',
+                           'price': 'Monetary'}, inplace=True)
+
+    rfm_df['R_score'] = pd.qcut(rfm_df['Recency'], 5, labels=[5, 4, 3, 2, 1])
+    rfm_df['F_score'] = pd.qcut(rfm_df['Frequency'].rank(method='first'), 5, labels=[1, 2, 3, 4, 5])
+
+    segt_map = {
+        r'[1-2][1-2]': 'Hibernating', r'[1-2][3-4]': 'At Risk', r'[1-2]5': 'Cannot Lose Them',
+        r'3[1-2]': 'About to Sleep', r'33': 'Need Attention', r'[3-4][4-5]': 'Loyal Customers',
+        r'41': 'Promising', r'51': 'New Customers', r'[4-5][2-3]': 'Potential Loyalists', r'5[4-5]': 'Champions'
+    }
+
+    rfm_df['Segment'] = rfm_df['R_score'].astype(str) + rfm_df['F_score'].astype(str)
+    rfm_df['Segment'] = rfm_df['Segment'].replace(segt_map, regex=True)
+
+    segment_counts = rfm_df['Segment'].value_counts().sort_values(ascending=False)
+
+    fig, ax = plt.subplots(figsize=(16, 8))
+    sns.barplot(x=segment_counts.index, y=segment_counts.values, palette='rocket', ax=ax)
+    ax.set_title('Distribusi Pelanggan Berdasarkan Segmentasi RFM', fontsize=18)
+    ax.set_xlabel('Segmen Pelanggan', fontsize=14)
+    ax.set_ylabel('Jumlah Pelanggan', fontsize=14)
+    ax.tick_params(axis='x', rotation=45)
+    plt.tight_layout()
+    return fig
+
 # ----- MEMUAT DATA -----
 all_data = load_data()
 
@@ -140,5 +175,10 @@ st.write("Visualisasi di bawah ini menampilkan 10 kategori produk dengan pendapa
 fig2 = create_revenue_review_plot(main_df)
 st.pyplot(fig2)
 
+# Visualisasi 3: Segmentasi Pelanggan RFM
+st.subheader("Segmentasi Pelanggan (RFM)")
+st.write("Analisis ini mengelompokkan pelanggan ke dalam segmen-segmen berdasarkan perilaku pembelian mereka (kapan terakhir membeli, seberapa sering, dan total nilai). Ini penting untuk strategi pemasaran yang tertarget.")
+fig3 = create_rfm_plot(main_df)
+st.pyplot(fig3)
 
 st.caption('Copyright (c) 2024 - Bivandira Aurel Maha Dewa')
